@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Loan Analyzer - Private & Secure</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .card {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+        }
+
+        h2 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 1.8em;
+        }
+
+        h3 {
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        p {
+            color: #4a5568;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .privacy-banner {
+            background: #c6f6d5;
+            border: 3px solid #38a169;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .privacy-banner h2 {
+            color: #22543d;
+            margin-bottom: 15px;
+        }
+
+        .privacy-banner p {
+            color: #22543d;
+            font-size: 1.1em;
+        }
+
+        .privacy-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-block;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #718096;
+        }
+
+        .btn-secondary:hover {
+            background: #4a5568;
+        }
+
+        .btn-danger {
+            background: #e53e3e;
+        }
+
+        .btn-danger:hover {
+            background: #c53030;
+        }
+
+        .btn-success {
+            background: #38a169;
+        }
+
+        .btn-success:hover {
+            background: #2f855a;
+        }
+
+        .instructions {
+            background: #ebf8ff;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+
+        .instructions ol {
+            margin-left: 20px;
+            color: #2d3748;
+        }
+
+        .instructions li {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 300px;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            resize: vertical;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .loan-editor {
+            margin: 30px 0;
+        }
+
+        .loan-card {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .loan-card.editing {
+            border-color: #667eea;
+            background: #ebf8ff;
+        }
+
+        .loan-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .loan-card-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .loan-card-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-small {
+            padding: 8px 15px;
+            font-size: 0.9em;
+        }
+
+        .loan-fields {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .field label {
+            color: #718096;
+            font-size: 0.85em;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .field input, .field select {
+            padding: 8px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 5px;
+            font-size: 1em;
+        }
+
+        .field input:focus, .field select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .alert {
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .alert-info {
+            background: #ebf8ff;
+            border-left: 4px solid #667eea;
+            color: #2c5282;
+        }
+
+        .alert-warning {
+            background: #fffaf0;
+            border-left: 4px solid #dd6b20;
+            color: #7c2d12;
+        }
+
+        .alert-success {
+            background: #f0fff4;
+            border-left: 4px solid #38a169;
+            color: #22543d;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .summary-card {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .summary-card .label {
+            color: #718096;
+            font-size: 0.85em;
+            margin-bottom: 8px;
+        }
+
+        .summary-card .value {
+            color: #2d3748;
+            font-size: 1.8em;
+            font-weight: 700;
+        }
+
+        .chart-container {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f7fafc;
+            border-radius: 8px;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 400px;
+        }
+
+        .nav-buttons {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 1000;
+        }
+
+        .progress-bar {
+            height: 5px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #667eea;
+            transition: width 0.3s;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #718096;
+        }
+
+        .empty-state svg {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8em; }
+            h2 { font-size: 1.4em; }
+            .loan-fields { grid-template-columns: 1fr; }
+            .summary-grid { grid-template-columns: 1fr; }
+            .nav-buttons { position: static; margin-bottom: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Splash Screen -->
+        <div id="splash" class="screen active">
+            <div class="card">
+                <div style="text-align: center;">
+                    <div class="privacy-icon">🔒</div>
+                    <h1>Student Loan Analyzer</h1>
+                    <p style="font-size: 1.2em; color: #718096;">Private • Secure • Free</p>
+                </div>
+
+                <div class="privacy-banner">
+                    <h2>✅ Your Privacy is Guaranteed</h2>
+                    <p><strong>100% Private:</strong> All calculations happen in your browser. Nothing is sent to any server.</p>
+                    <p><strong>Offline Capable:</strong> You can turn off your WiFi after loading this page - it will still work!</p>
+                    <p><strong>No Data Storage:</strong> Your loan information stays on your device only.</p>
+                    <p><strong>Open Source:</strong> The code is transparent and verifiable.</p>
+                </div>
+
+                <div class="instructions">
+                    <h3>How It Works:</h3>
+                    <ol>
+                        <li>Copy your loan information from your loan servicer (e.g., Nelnet, Mohela, Aidvantage)</li>
+                        <li>Paste it into the analyzer</li>
+                        <li>Review and edit your loan details</li>
+                        <li>Get instant visualizations and repayment strategies</li>
+                    </ol>
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <button class="btn" onclick="showScreen('import')">Get Started →</button>
+                </div>
+
+                <p style="text-align: center; margin-top: 20px; color: #718096; font-size: 0.9em;">
+                    Made with ❤️ for students drowning in debt
+                </p>
+            </div>
+        </div>
+
+        <!-- Import Screen -->
+        <div id="import" class="screen">
+            <div class="nav-buttons">
+                <button class="btn-secondary btn-small btn" onclick="showScreen('splash')">← Back</button>
+            </div>
+
+            <div class="card">
+                <h1>Import Your Loan Data</h1>
+
+                <div class="instructions">
+                    <h3>📋 Step-by-Step Instructions:</h3>
+                    <ol>
+                        <li><strong>Log in to your loan servicer</strong> (Nelnet, Mohela, Aidvantage, etc.)</li>
+                        <li><strong>Navigate to your loan details page</strong> - usually called "Loan Details" or "Account Summary"</li>
+                        <li><strong>Select all the text on the page</strong> (Ctrl+A on Windows, Cmd+A on Mac)</li>
+                        <li><strong>Copy it</strong> (Ctrl+C or Cmd+C)</li>
+                        <li><strong>Paste it in the box below</strong> (Ctrl+V or Cmd+V)</li>
+                        <li><strong>Click "Parse Loans"</strong> - the app will automatically extract your loan information!</li>
+                    </ol>
+                    <p><strong>Tip:</strong> The more detail you copy, the better! Include principal balance, interest rate, loan type, and payment information.</p>
+                </div>
+
+                <h3>Paste Your Loan Data Here:</h3>
+                <textarea id="loanDataInput" placeholder="Paste your loan information here...
+
+Example format the parser understands:
+- Principal Balance: $25,000
+- Interest Rate: 6.5%
+- Loan Type: Direct Unsubsidized
+- Daily Interest: $4.45
+- Monthly Payment: $150.00
+
+You can paste from any format - the parser will try its best to extract the information!"></textarea>
+
+                <div class="button-group">
+                    <button class="btn" onclick="parseLoans()">🔍 Parse Loans</button>
+                    <button class="btn-secondary btn" onclick="loadSampleData()">📝 Load Sample Data (Test)</button>
+                    <button class="btn-secondary btn" onclick="manualEntry()">✏️ Manual Entry Instead</button>
+                </div>
+
+                <div id="parseResults"></div>
+            </div>
+        </div>
+
+        <!-- Editor Screen -->
+        <div id="editor" class="screen">
+            <div class="nav-buttons">
+                <button class="btn-secondary btn-small btn" onclick="showScreen('import')">← Back</button>
+                <button class="btn-success btn-small btn" onclick="showScreen('dashboard')">View Dashboard →</button>
+            </div>
+
+            <div class="card">
+                <h1>Review & Edit Your Loans</h1>
+
+                <div class="summary-grid" id="editorSummary"></div>
+
+                <div class="button-group">
+                    <button class="btn-success btn" onclick="addNewLoan()">+ Add New Loan</button>
+                    <button class="btn-secondary btn" onclick="exportData()">💾 Export Data (JSON)</button>
+                    <button class="btn-secondary btn" onclick="importData()">📂 Import Data (JSON)</button>
+                </div>
+
+                <div id="loanEditor" class="loan-editor"></div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <button class="btn btn-success" style="font-size: 1.2em; padding: 20px 40px;" onclick="showScreen('dashboard')">
+                        Continue to Dashboard →
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Screen -->
+        <div id="dashboard" class="screen">
+            <div class="nav-buttons">
+                <button class="btn-secondary btn-small btn" onclick="showScreen('editor')">← Edit Loans</button>
+                <button class="btn-secondary btn-small btn" onclick="showScreen('splash')">🏠 Start Over</button>
+            </div>
+
+            <div class="card">
+                <h1>Your Loan Analysis Dashboard</h1>
+                <p style="color: #718096;">Based on your <span id="loanCount">0</span> loan(s)</p>
+
+                <div class="summary-grid" id="dashboardSummary"></div>
+
+                <div id="dashboardAlerts"></div>
+            </div>
+
+            <div class="card">
+                <h2>Loan Breakdown by Type</h2>
+                <div class="chart-wrapper">
+                    <canvas id="typeChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Interest Rates</h2>
+                <div class="chart-wrapper">
+                    <canvas id="rateChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Balance Projection</h2>
+                <div class="instructions">
+                    <p><strong>Adjust your parameters:</strong></p>
+                    <div class="field">
+                        <label>Monthly Payment Amount: $</label>
+                        <input type="number" id="monthlyPaymentInput" value="200" step="50" onchange="updateProjection()">
+                    </div>
+                    <div class="field">
+                        <label>Years to Project:</label>
+                        <input type="number" id="projectionYears" value="10" min="1" max="30" onchange="updateProjection()">
+                    </div>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="projectionChart"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>📚 Repayment Strategy Guidance</h2>
+                <div id="strategyGuidance"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global state
+        let loans = [];
+        let charts = {};
+
+        // Navigation
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+
+            if (screenId === 'editor') {
+                renderEditor();
+            } else if (screenId === 'dashboard') {
+                renderDashboard();
+            }
+        }
+
+        // Load sample data
+        function loadSampleData() {
+            const sampleText = `Group: AA
+Loan Type:
+DIRECT SUB
+Status:
+REPAYMENT
+Payment Information
+Current Amount Due:
+$2.46
+Effective Interest Rate:
+3.610%
+Regulatory Interest Rate:
+3.860%
+Regular Monthly Payment Amount:
+$1.23
+Balance Information
+Principal Balance:
+$2,640.12
+Unpaid Accrued Interest through 02/14/2026:
+$56.21
+Total Daily Interest Accrual:
+$0.26
+
+Group: AB
+Loan Type:
+DIRECT UNSUB
+Status:
+REPAYMENT
+Payment Information
+Current Amount Due:
+$1.50
+Effective Interest Rate:
+3.610%
+Regular Monthly Payment Amount:
+$0.75
+Balance Information
+Principal Balance:
+$1,614.77
+Unpaid Accrued Interest through 02/14/2026:
+$190.46
+Total Daily Interest Accrual:
+$0.16
+
+Group: AG
+Loan Type:
+DIRECT UNSUB
+Status:
+REPAYMENT
+Payment Information
+Effective Interest Rate:
+5.830%
+Regular Monthly Payment Amount:
+$19.91
+Balance Information
+Principal Balance:
+$42,700.00
+Unpaid Accrued Interest through 02/14/2026:
+$7,337.85
+Total Daily Interest Accrual:
+$6.82`;
+
+            document.getElementById('loanDataInput').value = sampleText;
+
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-success';
+            alert.innerHTML = '<strong>Sample data loaded!</strong> This is real Nelnet format. Click "Parse Loans" to process it.';
+            document.getElementById('parseResults').innerHTML = '';
+            document.getElementById('parseResults').appendChild(alert);
+        }
+
+        // Parse loans from pasted text
+        function parseLoans() {
+            const text = document.getElementById('loanDataInput').value;
+
+            if (!text.trim()) {
+                showParseError('Please paste your loan data first!');
+                return;
+            }
+
+            try {
+                loans = [];
+                let currentLoan = null;
+
+                // Extract currency values
+                const extractMoney = (text) => {
+                    const match = text.match(/\$?([\d,]+\.?\d*)/);
+                    return match ? parseFloat(match[1].replace(/,/g, '')) : 0;
+                };
+
+                // Extract percentage
+                const extractPercent = (text) => {
+                    const match = text.match(/([\d.]+)%/);
+                    return match ? parseFloat(match[1]) : 0;
+                };
+
+                // Split into lines and process
+                const lines = text.split('\n');
+
+                for (let i = 0; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    const nextLine = (i + 1 < lines.length) ? lines[i + 1].trim() : '';
+
+                    // Helper to get value from current line or next line
+                    const getValue = (currentLine, nextLine) => {
+                        // Try current line first
+                        if (currentLine.includes('$') || currentLine.includes('%')) {
+                            return currentLine;
+                        }
+                        // Otherwise use next line
+                        return nextLine;
+                    };
+
+                    // Start a new loan when we see "Group: XX"
+                    if (line.match(/^Group:\s*([A-Z0-9]+)/i)) {
+                        // Save previous loan if exists
+                        if (currentLoan && currentLoan.group) {
+                            loans.push({...currentLoan, id: Date.now() + Math.random() + loans.length});
+                        }
+
+                        // Start new loan
+                        const groupMatch = line.match(/^Group:\s*([A-Z0-9]+)/i);
+                        currentLoan = {
+                            group: 'Group ' + groupMatch[1],
+                            type: 'UNSUB',
+                            principal: 0,
+                            interest: 0,
+                            rate: 0,
+                            daily: 0,
+                            payment: 0
+                        };
+                        continue;
+                    }
+
+                    // If we don't have a current loan yet, skip
+                    if (!currentLoan) continue;
+
+                    // Extract loan type (DIRECT SUB, DIRECT UNSUB, etc.)
+                    // Check current line and next line
+                    if (line.match(/^Loan Type:/i)) {
+                        let type = line.replace(/^Loan Type:\s*/i, '').trim();
+                        if (!type && nextLine.match(/DIRECT/i)) {
+                            type = nextLine;
+                        }
+                        if (type) {
+                            type = type.replace(/DIRECT\s+/gi, '');
+                            currentLoan.type = type;
+                        }
+                    }
+
+                    // Extract principal balance
+                    if (line.match(/^Principal Balance:/i)) {
+                        const valueStr = getValue(line, nextLine);
+                        currentLoan.principal = extractMoney(valueStr);
+                    }
+
+                    // Extract unpaid interest (be specific to avoid matching other interest fields)
+                    if (line.match(/^Unpaid Accrued Interest/i)) {
+                        const valueStr = getValue(line, nextLine);
+                        currentLoan.interest = extractMoney(valueStr);
+                    }
+
+                    // Extract effective interest rate (prefer this over regulatory)
+                    if (line.match(/^Effective Interest Rate:/i)) {
+                        const valueStr = getValue(line, nextLine);
+                        currentLoan.rate = extractPercent(valueStr);
+                    }
+
+                    // Extract daily interest accrual
+                    if (line.match(/^Total Daily Interest Accrual:/i)) {
+                        const valueStr = getValue(line, nextLine);
+                        currentLoan.daily = extractMoney(valueStr);
+                    }
+
+                    // Extract monthly payment
+                    if (line.match(/^Regular Monthly Payment Amount:/i)) {
+                        const valueStr = getValue(line, nextLine);
+                        currentLoan.payment = extractMoney(valueStr);
+                    }
+                }
+
+                // Don't forget to add the last loan
+                if (currentLoan && currentLoan.group) {
+                    loans.push({...currentLoan, id: Date.now() + Math.random() + loans.length});
+                }
+
+                // Calculate missing daily interest from rate and principal
+                loans.forEach(loan => {
+                    if (!loan.daily && loan.rate && loan.principal) {
+                        loan.daily = (loan.principal * (loan.rate / 100)) / 365;
+                    }
+                });
+
+                if (loans.length === 0) {
+                    showParseError('No loans found! Make sure you copied the full loan details from Nelnet, including the "Group:" labels.');
+                    return;
+                }
+
+                showParseSuccess(loans.length);
+                setTimeout(() => showScreen('editor'), 1500);
+
+            } catch (error) {
+                showParseError('Error parsing loans: ' + error.message);
+                console.error('Parser error:', error);
+            }
+        }
+
+        function showParseError(message) {
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-warning';
+            alert.innerHTML = `<strong>⚠️ ${message}</strong>`;
+            document.getElementById('parseResults').innerHTML = '';
+            document.getElementById('parseResults').appendChild(alert);
+        }
+
+        function showParseSuccess(count) {
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-success';
+            alert.innerHTML = `<strong>✅ Success!</strong> Found ${count} loan(s). Redirecting to editor...`;
+            document.getElementById('parseResults').innerHTML = '';
+            document.getElementById('parseResults').appendChild(alert);
+        }
+
+        // Manual entry
+        function manualEntry() {
+            loans = [];
+            addNewLoan();
+            showScreen('editor');
+        }
+
+        // Add new loan
+        function addNewLoan() {
+            const newLoan = {
+                id: Date.now() + Math.random(),
+                group: `Loan ${loans.length + 1}`,
+                type: 'UNSUB',
+                principal: 0,
+                interest: 0,
+                rate: 0,
+                daily: 0,
+                payment: 0
+            };
+            loans.push(newLoan);
+            renderEditor();
+        }
+
+        // Delete loan
+        function deleteLoan(id) {
+            if (confirm('Are you sure you want to delete this loan?')) {
+                loans = loans.filter(l => l.id !== id);
+                renderEditor();
+            }
+        }
+
+        // Update loan
+        function updateLoan(id, field, value) {
+            const loan = loans.find(l => l.id === id);
+            if (loan) {
+                if (field === 'principal' || field === 'interest' || field === 'rate' || field === 'daily' || field === 'payment') {
+                    loan[field] = parseFloat(value) || 0;
+
+                    // Auto-calculate daily interest if rate and principal are provided
+                    if ((field === 'rate' || field === 'principal') && loan.rate && loan.principal) {
+                        loan.daily = (loan.principal * (loan.rate / 100)) / 365;
+                        renderEditor();
+                    }
+                } else {
+                    loan[field] = value;
+                }
+            }
+        }
+
+        // Render editor
+        function renderEditor() {
+            const container = document.getElementById('loanEditor');
+            const summary = document.getElementById('editorSummary');
+
+            // Calculate totals
+            const totalPrincipal = loans.reduce((sum, l) => sum + l.principal, 0);
+            const totalInterest = loans.reduce((sum, l) => sum + l.interest, 0);
+            const totalDaily = loans.reduce((sum, l) => sum + l.daily, 0);
+            const totalPayment = loans.reduce((sum, l) => sum + l.payment, 0);
+
+            // Render summary
+            summary.innerHTML = `
+                <div class="summary-card">
+                    <div class="label">Total Loans</div>
+                    <div class="value">${loans.length}</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">Principal Balance</div>
+                    <div class="value">$${totalPrincipal.toLocaleString()}</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">Unpaid Interest</div>
+                    <div class="value">$${totalInterest.toLocaleString()}</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">Daily Interest</div>
+                    <div class="value">$${totalDaily.toFixed(2)}</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">Monthly Payment</div>
+                    <div class="value">$${totalPayment.toFixed(2)}</div>
+                </div>
+            `;
+
+            // Render loans
+            if (loans.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>No loans yet. Click "Add New Loan" to get started!</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = loans.map(loan => `
+                <div class="loan-card" id="loan-${loan.id}">
+                    <div class="loan-card-header">
+                        <div class="loan-card-title">${loan.group}</div>
+                        <div class="loan-card-actions">
+                            <button class="btn-danger btn-small btn" onclick="deleteLoan(${loan.id})">Delete</button>
+                        </div>
+                    </div>
+                    <div class="loan-fields">
+                        <div class="field">
+                            <label>Loan Name</label>
+                            <input type="text" value="${loan.group}" onchange="updateLoan(${loan.id}, 'group', this.value)">
+                        </div>
+                        <div class="field">
+                            <label>Loan Type</label>
+                            <select onchange="updateLoan(${loan.id}, 'type', this.value)">
+                                <option value="SUB" ${loan.type === 'SUB' ? 'selected' : ''}>Subsidized</option>
+                                <option value="UNSUB" ${loan.type === 'UNSUB' ? 'selected' : ''}>Unsubsidized</option>
+                                <option value="GRAD" ${loan.type === 'GRAD' ? 'selected' : ''}>Grad PLUS</option>
+                                <option value="PARENT" ${loan.type === 'PARENT' ? 'selected' : ''}>Parent PLUS</option>
+                                <option value="CONSOLIDATION" ${loan.type === 'CONSOLIDATION' ? 'selected' : ''}>Consolidation</option>
+                                <option value="PRIVATE" ${loan.type === 'PRIVATE' ? 'selected' : ''}>Private</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>Principal Balance</label>
+                            <input type="number" step="0.01" value="${loan.principal}" onchange="updateLoan(${loan.id}, 'principal', this.value)">
+                        </div>
+                        <div class="field">
+                            <label>Unpaid Interest</label>
+                            <input type="number" step="0.01" value="${loan.interest}" onchange="updateLoan(${loan.id}, 'interest', this.value)">
+                        </div>
+                        <div class="field">
+                            <label>Interest Rate (%)</label>
+                            <input type="number" step="0.01" value="${loan.rate}" onchange="updateLoan(${loan.id}, 'rate', this.value)">
+                        </div>
+                        <div class="field">
+                            <label>Daily Interest ($)</label>
+                            <input type="number" step="0.01" value="${loan.daily.toFixed(2)}" onchange="updateLoan(${loan.id}, 'daily', this.value)">
+                        </div>
+                        <div class="field">
+                            <label>Monthly Payment ($)</label>
+                            <input type="number" step="0.01" value="${loan.payment}" onchange="updateLoan(${loan.id}, 'payment', this.value)">
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Export data
+        function exportData() {
+            const dataStr = JSON.stringify(loans, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'my-loans-backup.json';
+            link.click();
+        }
+
+        // Import data
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'application/json';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        loans = JSON.parse(event.target.result);
+                        renderEditor();
+                        alert('Loans imported successfully!');
+                    } catch (error) {
+                        alert('Error importing file: ' + error.message);
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        // Render dashboard
+        function renderDashboard() {
+            const totalPrincipal = loans.reduce((sum, l) => sum + l.principal, 0);
+            const totalInterest = loans.reduce((sum, l) => sum + l.interest, 0);
+            const totalBalance = totalPrincipal + totalInterest;
+            const totalDaily = loans.reduce((sum, l) => sum + l.daily, 0);
+            const totalPayment = loans.reduce((sum, l) => sum + l.payment, 0);
+            const monthlyInterest = totalDaily * 30;
+
+            document.getElementById('loanCount').textContent = loans.length;
+
+            // Summary
+            const summary = document.getElementById('dashboardSummary');
+            summary.innerHTML = `
+                <div class="summary-card">
+                    <div class="label">Total Outstanding</div>
+                    <div class="value" style="color: #e53e3e;">$${totalBalance.toLocaleString()}</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">Principal</div>
+                    <div class="value">$${totalPrincipal.toLocaleString()}</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">Unpaid Interest</div>
+                    <div class="value" style="color: #dd6b20;">$${totalInterest.toLocaleString()}</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">Daily Interest</div>
+                    <div class="value" style="color: #e53e3e;">$${totalDaily.toFixed(2)}</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">Monthly Payment</div>
+                    <div class="value">$${totalPayment.toFixed(2)}</div>
+                </div>
+                <div class="summary-card">
+                    <div class="label">Payment Coverage</div>
+                    <div class="value" style="color: ${totalPayment >= monthlyInterest ? '#38a169' : '#e53e3e'};">
+                        ${totalPayment > 0 ? ((totalPayment / monthlyInterest) * 100).toFixed(1) : 0}%
+                    </div>
+                </div>
+            `;
+
+            // Alerts
+            const alerts = document.getElementById('dashboardAlerts');
+            if (totalPayment < monthlyInterest) {
+                alerts.innerHTML = `
+                    <div class="alert alert-warning">
+                        <h3>⚠️ Payment Alert</h3>
+                        <p><strong>Your monthly payment ($${totalPayment.toFixed(2)}) is NOT covering your monthly interest accrual ($${monthlyInterest.toFixed(2)}).</strong></p>
+                        <p>This means your balance is growing by approximately <strong>$${(monthlyInterest - totalPayment).toFixed(2)} per month</strong>.</p>
+                        <p>This may be intentional if you're on an income-driven repayment plan pursuing loan forgiveness. See strategy guidance below.</p>
+                    </div>
+                `;
+            } else {
+                alerts.innerHTML = `
+                    <div class="alert alert-success">
+                        <h3>✅ Payment Coverage Good</h3>
+                        <p>Your monthly payment is covering your interest accrual. You're making progress on your principal!</p>
+                    </div>
+                `;
+            }
+
+            // Charts
+            renderCharts();
+            renderStrategyGuidance();
+        }
+
+        function renderCharts() {
+            // Group by type
+            const byType = {};
+            loans.forEach(loan => {
+                if (!byType[loan.type]) {
+                    byType[loan.type] = { principal: 0, interest: 0 };
+                }
+                byType[loan.type].principal += loan.principal;
+                byType[loan.type].interest += loan.interest;
+            });
+
+            // Type chart
+            if (charts.typeChart) charts.typeChart.destroy();
+            const typeCtx = document.getElementById('typeChart').getContext('2d');
+            charts.typeChart = new Chart(typeCtx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(byType),
+                    datasets: [{
+                        label: 'Principal',
+                        data: Object.values(byType).map(t => t.principal),
+                        backgroundColor: 'rgba(102, 126, 234, 0.8)'
+                    }, {
+                        label: 'Unpaid Interest',
+                        data: Object.values(byType).map(t => t.interest),
+                        backgroundColor: 'rgba(229, 62, 62, 0.8)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { stacked: true },
+                        y: {
+                            stacked: true,
+                            ticks: {
+                                callback: (value) => '$' + value.toLocaleString()
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Rate chart
+            if (charts.rateChart) charts.rateChart.destroy();
+            const rateCtx = document.getElementById('rateChart').getContext('2d');
+            charts.rateChart = new Chart(rateCtx, {
+                type: 'bar',
+                data: {
+                    labels: loans.map(l => l.group),
+                    datasets: [{
+                        label: 'Interest Rate (%)',
+                        data: loans.map(l => l.rate),
+                        backgroundColor: loans.map(l => {
+                            if (l.rate < 5) return 'rgba(56, 161, 105, 0.8)';
+                            if (l.rate < 7) return 'rgba(221, 107, 32, 0.8)';
+                            return 'rgba(229, 62, 62, 0.8)';
+                        })
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: (value) => value + '%'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Update projection
+            updateProjection();
+        }
+
+        function updateProjection() {
+            const monthlyPayment = parseFloat(document.getElementById('monthlyPaymentInput').value) || 0;
+            const years = parseInt(document.getElementById('projectionYears').value) || 10;
+            const months = years * 12;
+
+            const totalPrincipal = loans.reduce((sum, l) => sum + l.principal, 0);
+            const totalInterest = loans.reduce((sum, l) => sum + l.interest, 0);
+            const totalDaily = loans.reduce((sum, l) => sum + l.daily, 0);
+            const avgRate = loans.reduce((sum, l) => l.principal * l.rate, 0) / totalPrincipal / 100;
+
+            const labels = [];
+            const balances = [];
+            const principalData = [];
+            const interestData = [];
+
+            let currentPrincipal = totalPrincipal;
+            let currentInterest = totalInterest;
+            let currentDaily = totalDaily;
+
+            for (let month = 0; month <= months; month++) {
+                labels.push(month);
+
+                const total = currentPrincipal + currentInterest;
+                balances.push(total);
+                principalData.push(currentPrincipal);
+                interestData.push(currentInterest);
+
+                if (month < months && currentPrincipal > 0) {
+                    // Add interest
+                    const monthlyInterest = currentDaily * 30;
+                    currentInterest += monthlyInterest;
+
+                    // Apply payment
+                    if (monthlyPayment >= currentInterest) {
+                        const principalPayment = monthlyPayment - currentInterest;
+                        currentInterest = 0;
+                        currentPrincipal = Math.max(0, currentPrincipal - principalPayment);
+                    } else {
+                        currentInterest -= monthlyPayment;
+                    }
+
+                    // Recalculate daily interest
+                    currentDaily = (currentPrincipal * avgRate) / 365;
+                }
+            }
+
+            if (charts.projectionChart) charts.projectionChart.destroy();
+            const projCtx = document.getElementById('projectionChart').getContext('2d');
+            charts.projectionChart = new Chart(projCtx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Total Balance',
+                        data: balances,
+                        borderColor: 'rgba(229, 62, 62, 1)',
+                        backgroundColor: 'rgba(229, 62, 62, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }, {
+                        label: 'Principal',
+                        data: principalData,
+                        borderColor: 'rgba(102, 126, 234, 1)',
+                        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }, {
+                        label: 'Interest',
+                        data: interestData,
+                        borderColor: 'rgba(221, 107, 32, 1)',
+                        backgroundColor: 'rgba(221, 107, 32, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            title: { display: true, text: 'Months' }
+                        },
+                        y: {
+                            ticks: {
+                                callback: (value) => '$' + (value/1000).toFixed(0) + 'K'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderStrategyGuidance() {
+            const totalBalance = loans.reduce((sum, l) => sum + l.principal + l.interest, 0);
+            const totalPayment = loans.reduce((sum, l) => sum + l.payment, 0);
+            const totalDaily = loans.reduce((sum, l) => sum + l.daily, 0);
+            const monthlyInterest = totalDaily * 30;
+            const hasDirectLoans = loans.some(l => l.type === 'SUB' || l.type === 'UNSUB' || l.type === 'GRAD');
+
+            const guidance = document.getElementById('strategyGuidance');
+
+            let html = '<div class="instructions">';
+
+            // Federal loan strategies
+            if (hasDirectLoans) {
+                html += `
+                    <h3>🎯 Federal Loan Strategies</h3>
+                    <p>Since you have federal Direct Loans, you may be eligible for these programs:</p>
+
+                    <h4>1. Public Service Loan Forgiveness (PSLF)</h4>
+                    <ul>
+                        <li><strong>Who Qualifies:</strong> Full-time employees at government or nonprofit 501(c)(3) organizations</li>
+                        <li><strong>Benefit:</strong> Remaining balance forgiven TAX-FREE after 120 qualifying payments (10 years)</li>
+                        <li><strong>Requirements:</strong> Must be on an income-driven repayment plan (IDR)</li>
+                        <li><strong>Action:</strong> Submit Employment Certification Form annually at studentaid.gov</li>
+                        <li><strong>Best For:</strong> Those with high debt-to-income ratios working in public service</li>
+                    </ul>
+
+                    <h4>2. Income-Driven Repayment (IDR) Plans</h4>
+                    <ul>
+                        <li><strong>IBR (Income-Based):</strong> 10-15% of discretionary income</li>
+                        <li><strong>PAYE (Pay As You Earn):</strong> 10% of discretionary income</li>
+                        <li><strong>SAVE (Saving on Valuable Education):</strong> 5-10% of discretionary income - NEW in 2024!</li>
+                        <li><strong>ICR (Income-Contingent):</strong> 20% of discretionary income or fixed 12-year payment</li>
+                        <li><strong>Benefit:</strong> Payments based on income, forgiveness after 20-25 years</li>
+                        <li><strong>Action:</strong> Apply at studentaid.gov and recertify annually</li>
+                    </ul>
+
+                    <h4>3. Teacher Loan Forgiveness</h4>
+                    <ul>
+                        <li><strong>Who Qualifies:</strong> Teachers at low-income schools for 5 consecutive years</li>
+                        <li><strong>Benefit:</strong> Up to $17,500 forgiven (math, science, special ed) or $5,000 (other subjects)</li>
+                        <li><strong>Note:</strong> Cannot combine with PSLF for the same period of service</li>
+                    </ul>
+                `;
+            }
+
+            // General strategies
+            html += `
+                <h3>💰 General Repayment Strategies</h3>
+
+                <h4>Avalanche Method (Best for Savings)</h4>
+                <ul>
+                    <li>Pay minimums on all loans</li>
+                    <li>Put extra money toward highest interest rate loan first</li>
+                    <li>Saves the most money in interest</li>
+                    <li><strong>Recommended if:</strong> You want to minimize total cost</li>
+                </ul>
+
+                <h4>Snowball Method (Best for Motivation)</h4>
+                <ul>
+                    <li>Pay minimums on all loans</li>
+                    <li>Put extra money toward smallest balance first</li>
+                    <li>Psychological wins from paying off loans quickly</li>
+                    <li><strong>Recommended if:</strong> You need motivation to stay on track</li>
+                </ul>
+
+                <h4>Refinancing (Private Loans)</h4>
+                <ul>
+                    <li><strong>Pros:</strong> Lower interest rate, single payment, save on interest</li>
+                    <li><strong>Cons:</strong> Lose federal protections (IDR, PSLF, forbearance)</li>
+                    <li><strong>⚠️ Warning:</strong> NEVER refinance federal loans if you might pursue PSLF!</li>
+                    <li><strong>Consider if:</strong> You have good credit, stable income, and private loans with high rates</li>
+                </ul>
+            `;
+
+            // Payment coverage analysis
+            if (totalPayment < monthlyInterest) {
+                html += `
+                    <div class="alert alert-warning" style="margin-top: 20px;">
+                        <h4>⚠️ Your Payment Situation</h4>
+                        <p>Your current payment ($${totalPayment.toFixed(2)}/month) doesn't cover your interest accrual ($${monthlyInterest.toFixed(2)}/month).</p>
+                        <p><strong>This could be intentional if:</strong></p>
+                        <ul>
+                            <li>You're on an IDR plan with low income</li>
+                            <li>You're pursuing PSLF and want to maximize forgiveness</li>
+                            <li>You're in a temporary financial hardship</li>
+                        </ul>
+                        <p><strong>Consider increasing payments if:</strong></p>
+                        <ul>
+                            <li>You're NOT pursuing loan forgiveness</li>
+                            <li>Your income has increased significantly</li>
+                            <li>You want to pay off loans faster</li>
+                        </ul>
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div class="alert alert-success" style="margin-top: 20px;">
+                        <h4>✅ Good Payment Coverage</h4>
+                        <p>Your payments are covering your interest and paying down principal. Keep it up!</p>
+                        <p>To pay off faster, consider putting extra money toward your highest-rate loan.</p>
+                    </div>
+                `;
+            }
+
+            html += `
+                <h3>📞 Important Resources</h3>
+                <ul>
+                    <li><strong>Federal Student Aid:</strong> <a href="https://studentaid.gov" target="_blank">studentaid.gov</a></li>
+                    <li><strong>PSLF Information:</strong> <a href="https://studentaid.gov/pslf" target="_blank">studentaid.gov/pslf</a></li>
+                    <li><strong>IDR Plans:</strong> <a href="https://studentaid.gov/idr" target="_blank">studentaid.gov/idr</a></li>
+                    <li><strong>Loan Simulator:</strong> <a href="https://studentaid.gov/loan-simulator" target="_blank">studentaid.gov/loan-simulator</a></li>
+                    <li><strong>Default Prevention:</strong> Call 1-800-621-3115</li>
+                </ul>
+
+                <div class="alert alert-info" style="margin-top: 20px;">
+                    <p><strong>💡 Pro Tip:</strong> This tool helps you visualize your loans, but always verify your official balance and payment information with your loan servicer. For federal loans, log into studentaid.gov for the most accurate data.</p>
+                </div>
+            </div>`;
+
+            guidance.innerHTML = html;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Set default values
+            if (loans.length > 0) {
+                showScreen('editor');
+            }
+        });
+    </script>
+</body>
+</html>
