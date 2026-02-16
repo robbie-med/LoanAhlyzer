@@ -1,5 +1,5 @@
 # Student Loan Analyzer
-https://robbie-med.github.io/LoanAhlyzer/
+[Use it here!](https://robbie-med.github.io/LoanAhlyzer/)
 
 A privacy-focused, client-side web application for analyzing and visualizing student loan data.
 
